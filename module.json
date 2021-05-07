@@ -1,6 +1,6 @@
 {
-  "name": "module",
-  "title": "New Module",
+  "name": "swade-damage-cards",
+  "title": "SWADE Damage Cards",
   "description": "",
   "version": "This is auto replaced",
   "library": "false",
@@ -9,8 +9,8 @@
   "compatibleCoreVersion": "0.7.9",
   "authors": [
     {
-      "name": "The League of Extraordinary FVTT Developers",
-      "url": "https://github.com/League-of-Foundry-Developers",
+      "name": "Kandashi",
+      "url": "https://github.com/Kandashi",
       "discord": "discordID#0001"
     }
   ],
