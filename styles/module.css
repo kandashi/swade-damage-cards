@@ -26,4 +26,9 @@
 .damageCard .result {
     flex-grow: 4;
     text-align: center;
+
+}
+.damageCard .result:hover {
+    outline: none;
+    box-shadow: none;
 }
