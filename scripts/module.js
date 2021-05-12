@@ -20,8 +20,7 @@ class DamageCard {
                         for (let target of targets) {
                             if(target.actor.data.type === "vehicle") { 
                                 var armor = Number(target.actor.data.data.toughness.armor)
-                                var total = Number(target.actor.data.data.toughness.total)
-                                var value = armor + total
+                                var value = Number(target.actor.data.data.toughness.total)
                             }
                             else { var { armor, value } = target.actor.data.data.stats.toughness}
                             let apNeg = Math.min(ap, armor)
