@@ -18,7 +18,12 @@ class DamageCard {
                         let ap = Number(html.find("#ap")[0].value)
                         let targets = canvas.tokens.controlled
                         for (let target of targets) {
-                            const { armor, modifier, value } = target.actor.data.data.stats.toughness
+                            if(target.actor.data.type === "vehicle") { 
+                                var armor = Number(target.actor.data.data.toughness.armor)
+                                var total = Number(target.actor.data.data.toughness.total)
+                                var value = armor + total
+                            }
+                            else { var { armor, value } = target.actor.data.data.stats.toughness}
                             let apNeg = Math.min(ap, armor)
                             let newT = value - apNeg
                             let excess = damage - newT
