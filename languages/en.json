@@ -1,3 +1,9 @@
 {
-    "MODULE.hello": "hello"
+    "SWDC.title": "SWADE Damage Calculation",
+    "SWDC.cal": "Calculate",
+    "SWDC.notHarmed": "Not Harmed",
+    "SWDC.wound": "Wound",
+    "SWDC.wounds": "Wounds",
+    "SWDC.is": "is",
+    "SWDC.takes": "takes"
 }
