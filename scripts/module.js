@@ -39,7 +39,7 @@ class DamageCard {
                             </div>`
                             }
                             else if (excess >= newT) {
-                                let wounds = Math.floor(excess / newT)
+                                let wounds = Math.floor(excess / 4)
                                 content = `
                             <div class="damageCard">
                                 <div class="col1">
