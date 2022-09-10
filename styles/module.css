@@ -1,14 +1,14 @@
-.damageCard {
+/* .swade-damage-card {
     display: flex;
     flex-direction: row;
 }
-.damageCard .col1 {
+.swade-damage-card .swade-damage-card-col1 {
     flex: 1;
 }
-.damageCard .col2 {
+.swade-damage-card .swade-damage-card-col2 {
     flex: 2
 }
-.damageCard .col1 img {
+.swade-damage-card .swade-damage-card-col1 img {
     max-width: 60%;
     margin-left: 20%;
     border: 0px;
@@ -16,19 +16,20 @@
 }
 
 
-.damageCard .name {
+.swade-damage-card .swade-damage-card-name {
     flex-grow: 1;
     text-align: center;
     font-size: large;
     font-weight: bold;
 }
 
-.damageCard .result {
+.swade-damage-card .swade-damage-card-result {
     flex-grow: 4;
     text-align: center;
 
 }
-.damageCard .result:hover {
+.swade-damage-card .swade-damage-card-result:hover {
     outline: none;
     box-shadow: none;
 }
+ */
