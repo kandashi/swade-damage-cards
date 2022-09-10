@@ -1,33 +1,34 @@
 {
-  "name": "swade-damage-cards",
-  "title": "SWADE Damage Cards",
-  "description": "",
-  "version": "This is auto replaced",
-  "library": "false",
-  "manifestPlusVersion": "1.0.0",
-  "minimumCoreVersion": "0.7.9",
-  "compatibleCoreVersion": "0.7.9",
-  "authors": [
-    {
-      "name": "Kandashi",
-      "url": "https://github.com/Kandashi",
-      "discord": "Kandashi (He/Him)#6698"
-    }
-  ],
-  "esmodules": [
-    "/scripts/module.js"
-  ],
-  "styles": [
-    "/styles/module.css"
-  ],
-  "languages": [
-    {
-      "lang": "en",
-      "name": "English",
-      "path": "languages/en.json"
-    }
-  ],
-  "url": "This is auto replaced",
-  "manifest": "This is auto replaced",
-  "download": "This is auto replaced"
+    "name": "swade-damage-cards",
+    "title": "SWADE Damage Cards",
+    "description": "",
+    "version": "This is auto replaced",
+    "library": "false",
+    "manifestPlusVersion": "1.0.0",
+    "minimumCoreVersion": "9",
+    "compatibleCoreVersion": "9",
+    "authors": [
+        {
+            "name": "Kandashi",
+            "url": "https://github.com/Kandashi",
+            "discord": "Kandashi (He/Him)#6698"
+        }
+    ],
+    "esmodules": [
+        "/scripts/module.js"
+    ],
+    "styles": [
+        "/styles/module.css"
+    ],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "languages/en.json"
+        }
+    ],
+    "socket": true,
+    "url": "This is auto replaced",
+    "manifest": "This is auto replaced",
+    "download": "This is auto replaced"
 }
