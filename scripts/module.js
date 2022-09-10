@@ -6,7 +6,6 @@ async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
     if (statusToApply !== "none") {
         let actor;
         const documentObject = await fromUuid(tokenActorUUID);
-
         if (documentObject.constructor.name === 'TokenDocument') {
             actor = documentObject.actor
         } else if (documentObject.constructor.name === 'SwadeActor') {
@@ -15,7 +14,6 @@ async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
         const owner = actor.data.permission[game.userId] === 3;
         if (owner) {
             const woundsText = `${woundsInflicted} ${woundsInflicted > 1 ? game.i18n.format("SWDC.wounds") : game.i18n.format("SWDC.wound")}`;
-
             new Dialog({
                 title: game.i18n.format("SWDC.soakTitle"),
                 content: game.i18n.format("SWDC.soakDmgPrompt", { name: actor.name, wounds: woundsText }),
@@ -61,15 +59,13 @@ async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
 }
 
 async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText) {
-    Hooks.once('renderChatMessage', (chatItem, html) => {
-    });
+    // TODO: Figure out how to delay the results message until after the DSN roll animation completes.
     let vigorRoll = await actor.rollAttribute('vigor');
     let message;
     const woundsSoaked = Math.floor(vigorRoll.total / 4);
     const existingWounds = actor.data.data.wounds.value;
     const maxWounds = actor.data.data.wounds.max;
     const woundsRemaining = woundsInflicted - woundsSoaked;
-
     if (woundsRemaining <= 0) {
         message = game.i18n.format("SWDC.soakedAll", { name: actor.name });
         await ChatMessage.create({ content: message });
@@ -125,6 +121,22 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText) {
     }
 }
 
+async function applyShaken(actor) {
+    const data = CONFIG.SWADE.statusEffects.find(s => s.id === 'shaken');
+    if (!actor.data.data.status.isShaken) {
+        await actor.toggleActiveEffect(data, { active: true });
+    }
+}
+
+async function applyIncapacitated(actor) {
+    const data = CONFIG.SWADE.statusEffects.find((s) => s.id === 'incapacitated');
+    const isIncapacitated = actor.data.effects.find((e) => e.data.label === 'Incapacitated');
+    if (!isIncapacitated) {
+        await actor.toggleActiveEffect(data, { active: true });
+    }
+    return game.i18n.format("SWDC.incapacitated", { name: actor.name });
+}
+
 class DamageCard {
     static render() {
         new Dialog({
@@ -153,7 +165,6 @@ class DamageCard {
                             const excess = damage - newT;
                             let wounds = Math.floor(excess / 4);
                             let status = 'none';
-
                             if (excess >= 0 && excess < 4) {
                                 status = "shaken";
                                 if (target.actor.data.data.status.isShaken && wounds === 0) {
@@ -175,22 +186,6 @@ class DamageCard {
             default: "calculate"
         }, { classes: ["swade-app", "swade-damage-cards"] }).render(true);
     }
-}
-
-async function applyShaken(actor) {
-    const data = CONFIG.SWADE.statusEffects.find(s => s.id === 'shaken');
-    if (!actor.data.data.status.isShaken) {
-        await actor.toggleActiveEffect(data, { active: true });
-    }
-}
-
-async function applyIncapacitated(actor) {
-    const data = CONFIG.SWADE.statusEffects.find((s) => s.id === 'incapacitated');
-    const isIncapacitated = actor.data.effects.find((e) => e.data.label === 'Incapacitated');
-    if (!isIncapacitated) {
-        await actor.toggleActiveEffect(data, { active: true });
-    }
-    return game.i18n.format("SWDC.incapacitated", { name: actor.name });
 }
 
 globalThis.DamageCard = DamageCard;
