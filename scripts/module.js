@@ -58,20 +58,23 @@ async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
     }
 }
 
-async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText) {
+async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, bestSoakAttempt = null) {
     // TODO: Figure out how to delay the results message until after the DSN roll animation completes.
     let vigorRoll = await actor.rollAttribute('vigor');
     let message;
     const woundsSoaked = Math.floor(vigorRoll.total / 4);
     const existingWounds = actor.data.data.wounds.value;
     const maxWounds = actor.data.data.wounds.max;
-    const woundsRemaining = woundsInflicted - woundsSoaked;
+    let woundsRemaining = woundsInflicted - woundsSoaked;
     if (woundsRemaining <= 0) {
         message = game.i18n.format("SWDC.soakedAll", { name: actor.name });
         await ChatMessage.create({ content: message });
     } else {
         const totalWounds = existingWounds + woundsRemaining;
         const newWoundsValue = totalWounds < maxWounds ? totalWounds : maxWounds;
+        if (bestSoakAttempt !== null && woundsRemaining > bestSoakAttempt) {
+            woundsRemaining = bestSoakAttempt;
+        }
         const woundsRemainingText = `${woundsRemaining} ${woundsRemaining > 1 ? game.i18n.format("SWDC.wounds") : game.i18n.format("SWDC.wound")}`;
         new Dialog({
             title: game.i18n.format("SWDC.rerollSoakTitle"),
@@ -85,13 +88,13 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText) {
                         } else if (!actor.isWildcard && game.user.isGM && game.user.bennies > 0) {
                             game.user.spendBenny();
                         }
-                        await attemptSoak(actor, woundsInflicted, statusToApply, woundsText);
+                        await attemptSoak(actor, woundsInflicted, statusToApply, woundsText, woundsRemaining);
                     }
                 },
                 rerollFree: {
                     label: game.i18n.format("SWDC.rerollSoakFree"),
                     callback: async () => {
-                        await attemptSoak(actor, woundsInflicted, statusToApply, woundsText);
+                        await attemptSoak(actor, woundsInflicted, statusToApply, woundsText, woundsRemaining);
                     }
                 },
                 accept: {
