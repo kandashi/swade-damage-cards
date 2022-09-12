@@ -11,7 +11,7 @@ async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
         } else if (documentObject.constructor.name === 'SwadeActor') {
             actor = documentObject;
         }
-        const owner = actor.data.permission[game.userId] === 3;
+        const owner = actor.permission[game.userId] === 3;
         if (owner) {
             const woundsText = `${woundsInflicted} ${woundsInflicted > 1 ? game.i18n.format("SWDC.wounds") : game.i18n.format("SWDC.wound")}`;
             new Dialog({
@@ -38,8 +38,8 @@ async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
                     take: {
                         label: game.i18n.format("SWDC.takeWounds", { wounds: woundsText }),
                         callback: async () => {
-                            const existingWounds = actor.data.data.wounds.value;
-                            const maxWounds = actor.data.data.wounds.max;
+                            const existingWounds = actor.data.wounds.value;
+                            const maxWounds = actor.data.wounds.max;
                             const totalWounds = existingWounds + woundsInflicted;
                             const newWoundsValue = totalWounds < maxWounds ? totalWounds : maxWounds;
                             let message = game.i18n.format("SWDC.woundsTaken", { name: actor.name, wounds: woundsText });
@@ -63,8 +63,8 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
     let vigorRoll = await actor.rollAttribute('vigor');
     let message;
     const woundsSoaked = Math.floor(vigorRoll.total / 4);
-    const existingWounds = actor.data.data.wounds.value;
-    const maxWounds = actor.data.data.wounds.max;
+    const existingWounds = actor.data.wounds.value;
+    const maxWounds = actor.data.wounds.max;
     let woundsRemaining = woundsInflicted - woundsSoaked;
     if (woundsRemaining <= 0) {
         message = game.i18n.format("SWDC.soakedAll", { name: actor.name });
@@ -101,7 +101,7 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
                     label: game.i18n.format("SWDC.takeWounds", { wounds: woundsRemainingText }),
                     callback: async () => {
                         if (statusToApply === 'shaken') {
-                            if (actor.data.data.status.isShaken) {
+                            if (actor.data.status.isShaken) {
                                 await actor.update({ 'data.wounds.value': newWoundsValue });
                             }
                             await applyShaken(actor);
@@ -126,14 +126,14 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
 
 async function applyShaken(actor) {
     const data = CONFIG.SWADE.statusEffects.find(s => s.id === 'shaken');
-    if (!actor.data.data.status.isShaken) {
+    if (!actor.data.status.isShaken) {
         await actor.toggleActiveEffect(data, { active: true });
     }
 }
 
 async function applyIncapacitated(actor) {
     const data = CONFIG.SWADE.statusEffects.find((s) => s.id === 'incapacitated');
-    const isIncapacitated = actor.data.effects.find((e) => e.data.label === 'Incapacitated');
+    const isIncapacitated = actor.effects.find((e) => e.label === 'Incapacitated');
     if (!isIncapacitated) {
         await actor.toggleActiveEffect(data, { active: true });
     }
@@ -159,10 +159,10 @@ class DamageCard {
                             const damage = Number(html.find("#damage")[0].value);
                             const ap = Number(html.find("#ap")[0].value);
                             for (const target of targets) {
-                                let { armor, value } = target.actor.data.data.stats.toughness;
-                                if (target.actor.data.type === "vehicle") {
-                                    armor = Number(target.actor.data.data.toughness.armor);
-                                    value = Number(target.actor.data.data.toughness.total);
+                                let { armor, value } = target.actor.data.stats.toughness;
+                                if (target.actor.type === "vehicle") {
+                                    armor = Number(target.actor.data.toughness.armor);
+                                    value = Number(target.actor.data.toughness.total);
                                 }
                                 const apNeg = Math.min(ap, armor);
                                 const newT = value - apNeg;
@@ -171,7 +171,7 @@ class DamageCard {
                                 let status = 'none';
                                 if (excess >= 0 && excess < 4) {
                                     status = "shaken";
-                                    if (target.actor.data.data.status.isShaken && wounds === 0) {
+                                    if (target.actor.data.status.isShaken && wounds === 0) {
                                         wounds = 1;
                                         status = "wounded";
                                     }
