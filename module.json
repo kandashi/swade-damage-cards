@@ -5,8 +5,8 @@
     "version": "This is auto replaced",
     "library": "false",
     "manifestPlusVersion": "1.0.0",
-    "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "9",
+    "minimumCoreVersion": "10",
+    "compatibleCoreVersion": "10",
     "authors": [
         {
             "name": "Kandashi",
@@ -15,11 +15,9 @@
         }
     ],
     "esmodules": [
-        "/scripts/module.js"
+        "/scripts/swade-damage.js"
     ],
-    "styles": [
-        "/styles/module.css"
-    ],
+    "styles": [],
     "languages": [
         {
             "lang": "en",

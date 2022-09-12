@@ -1,18 +1,18 @@
 Hooks.on('ready', function () {
-    game.socket.on('module.swade-damage-cards', applyDamage);
+    game.socket.on('module.swade-damage-cards', soakPrompt);
 });
 
-async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
-    if (statusToApply !== "none") {
-        let actor;
-        const documentObject = await fromUuid(tokenActorUUID);
-        if (documentObject.constructor.name === 'TokenDocument') {
-            actor = documentObject.actor;
-        } else if (documentObject.constructor.name === 'SwadeActor') {
-            actor = documentObject;
-        }
-        const owner = actor.permission[game.userId] === 3;
-        if (owner) {
+async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
+    let actor;
+    const documentObject = await fromUuid(tokenActorUUID);
+    if (documentObject.constructor.name === 'TokenDocument') {
+        actor = documentObject.actor;
+    } else if (documentObject.constructor.name === 'SwadeActor') {
+        actor = documentObject;
+    }
+    const isOwner = actor.ownership[game.userId] === 3;
+    if (isOwner && statusToApply !== "none") {
+        if (statusToApply === "wounded") {
             const woundsText = `${woundsInflicted} ${woundsInflicted > 1 ? game.i18n.format("SWDC.wounds") : game.i18n.format("SWDC.wound")}`;
             new Dialog({
                 title: game.i18n.format("SWDC.soakTitle"),
@@ -38,15 +38,16 @@ async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
                     take: {
                         label: game.i18n.format("SWDC.takeWounds", { wounds: woundsText }),
                         callback: async () => {
-                            const existingWounds = actor.data.wounds.value;
-                            const maxWounds = actor.data.wounds.max;
+                            const existingWounds = actor.system.wounds.value;
+                            const maxWounds = actor.system.wounds.max;
                             const totalWounds = existingWounds + woundsInflicted;
                             const newWoundsValue = totalWounds < maxWounds ? totalWounds : maxWounds;
                             let message = game.i18n.format("SWDC.woundsTaken", { name: actor.name, wounds: woundsText });
-                            await applyShaken(actor);
                             await actor.update({ 'data.wounds.value': newWoundsValue });
                             if (totalWounds > maxWounds) {
                                 message = await applyIncapacitated(actor);
+                            } else {
+                                await applyShaken(actor);
                             }
                             await ChatMessage.create({ content: message });
                         }
@@ -54,6 +55,10 @@ async function applyDamage({ tokenActorUUID, woundsInflicted, statusToApply }) {
                 },
                 default: "soakBenny"
             }, { classes: ["swade-app", "swade-damage-cards", "swade-damage-cards-soak"] }).render(true);
+        } else if (statusToApply === "shaken") {
+            let message = game.i18n.format("SWDC.isShaken", { name: actor.name});
+            await applyShaken(actor);
+            await ChatMessage.create({ content: message });
         }
     }
 }
@@ -63,8 +68,8 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
     let vigorRoll = await actor.rollAttribute('vigor');
     let message;
     const woundsSoaked = Math.floor(vigorRoll.total / 4);
-    const existingWounds = actor.data.wounds.value;
-    const maxWounds = actor.data.wounds.max;
+    const existingWounds = actor.system.wounds.value;
+    const maxWounds = actor.system.wounds.max;
     let woundsRemaining = woundsInflicted - woundsSoaked;
     if (woundsRemaining <= 0) {
         message = game.i18n.format("SWDC.soakedAll", { name: actor.name });
@@ -101,20 +106,22 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
                     label: game.i18n.format("SWDC.takeWounds", { wounds: woundsRemainingText }),
                     callback: async () => {
                         if (statusToApply === 'shaken') {
-                            if (actor.data.status.isShaken) {
+                            if (actor.system.status.isShaken) {
                                 await actor.update({ 'data.wounds.value': newWoundsValue });
                             }
                             await applyShaken(actor);
                             message = game.i18n.format("SWDC.isShaken", { name: actor.name });
                         }
                         if (statusToApply === 'wounded') {
-                            await applyShaken(actor);
                             await actor.update({ 'data.wounds.value': newWoundsValue });
+                            if (totalWounds > maxWounds) {
+                                message = await applyIncapacitated(actor);
+                            } else {
+                                await applyShaken(actor);
+                            }
                             message = game.i18n.format("SWDC.woundsTaken", { name: actor.name, wounds: newWoundsValue });
                         }
-                        if (totalWounds > maxWounds) {
-                            message = await applyIncapacitated(actor);
-                        }
+
                         await ChatMessage.create({ content: message });
                     }
                 },
@@ -125,16 +132,17 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
 }
 
 async function applyShaken(actor) {
-    const data = CONFIG.SWADE.statusEffects.find(s => s.id === 'shaken');
-    if (!actor.data.status.isShaken) {
+    const isShaken = actor.system.status.isShaken;
+    if (!isShaken) {
+        const data = CONFIG.SWADE.statusEffects.find(s => s.id === 'shaken');
         await actor.toggleActiveEffect(data, { active: true });
     }
 }
 
 async function applyIncapacitated(actor) {
-    const data = CONFIG.SWADE.statusEffects.find((s) => s.id === 'incapacitated');
     const isIncapacitated = actor.effects.find((e) => e.label === 'Incapacitated');
-    if (!isIncapacitated) {
+    if (isIncapacitated === undefined) {
+        const data = CONFIG.SWADE.statusEffects.find((s) => s.id === 'incapacitated');
         await actor.toggleActiveEffect(data, { active: true });
     }
     return game.i18n.format("SWDC.incapacitated", { name: actor.name });
@@ -159,30 +167,41 @@ class DamageCard {
                             const damage = Number(html.find("#damage")[0].value);
                             const ap = Number(html.find("#ap")[0].value);
                             for (const target of targets) {
-                                let { armor, value } = target.actor.data.stats.toughness;
+                                let { armor, value } = target.actor.system.stats.toughness;
                                 if (target.actor.type === "vehicle") {
-                                    armor = Number(target.actor.data.toughness.armor);
-                                    value = Number(target.actor.data.toughness.total);
+                                    armor = Number(target.actor.system.toughness.armor);
+                                    value = Number(target.actor.system.toughness.total);
                                 }
                                 const apNeg = Math.min(ap, armor);
                                 const newT = value - apNeg;
                                 const excess = damage - newT;
-                                let wounds = Math.floor(excess / 4);
-                                let status = 'none';
+                                let woundsInflicted = Math.floor(excess / 4);
+                                let statusToApply = 'none';
                                 if (excess >= 0 && excess < 4) {
-                                    status = "shaken";
-                                    if (target.actor.data.status.isShaken && wounds === 0) {
-                                        wounds = 1;
-                                        status = "wounded";
+                                    statusToApply = "shaken";
+                                    if (target.actor.system.status.isShaken && woundsInflicted === 0) {
+                                        woundsInflicted = 1;
+                                        statusToApply = "wounded";
                                     }
                                 } else if (excess >= 4) {
-                                    status = "wounded";
+                                    statusToApply = "wounded";
                                 }
-                                game.socket.emit('module.swade-damage-cards', {
-                                    tokenActorUUID: target.actor.uuid,
-                                    woundsInflicted: wounds,
-                                    statusToApply: status
+                                const playerOwners = Object.keys(target.actor.ownership).filter((id) => {
+                                    return game.users.find((u) => u.id === id && !u.isGM);
                                 });
+                                if (game.user.isGM && playerOwners.length === 0) {
+                                    await soakPrompt({
+                                        tokenActorUUID: target.actor.uuid,
+                                        woundsInflicted: woundsInflicted,
+                                        statusToApply: statusToApply
+                                    })
+                                } else {
+                                    game.socket.emit('module.swade-damage-cards', {
+                                        tokenActorUUID: target.actor.uuid,
+                                        woundsInflicted: woundsInflicted,
+                                        statusToApply: statusToApply
+                                    });
+                                }
                             }
                         }
                     }
