@@ -23,7 +23,7 @@
         }
     ],
     "esmodules": [
-        "/scripts/swade-damage.js"
+        "/scripts/swade-wounds.js"
     ],
     "styles": [],
     "languages": [
