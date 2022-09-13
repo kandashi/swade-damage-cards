@@ -43,7 +43,7 @@ async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
                             const totalWounds = existingWounds + woundsInflicted;
                             const newWoundsValue = totalWounds < maxWounds ? totalWounds : maxWounds;
                             let message = game.i18n.format("SWDC.woundsTaken", { name: actor.name, wounds: woundsText });
-                            await actor.update({ 'data.wounds.value': newWoundsValue });
+                            await actor.updateSource({ 'system.wounds.value': newWoundsValue });
                             if (totalWounds > maxWounds) {
                                 message = await applyIncapacitated(actor);
                             } else {
@@ -80,7 +80,8 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
         if (bestSoakAttempt !== null && woundsRemaining > bestSoakAttempt) {
             woundsRemaining = bestSoakAttempt;
         }
-        const woundsRemainingText = `${woundsRemaining} ${woundsRemaining > 1 ? game.i18n.format("SWDC.wounds") : game.i18n.format("SWDC.wound")}`;
+        const woundsRemainingText = `${woundsRemaining} ${woundsRemaining > 1 || woundsRemaining === 0 ? game.i18n.format("SWDC.wounds") : game.i18n.format("SWDC.wound")}`;
+        const newWoundsValueText = `${newWoundsValue} ${newWoundsValue > 1 || newWoundsValue === 0 ? game.i18n.format("SWDC.wounds") : game.i18n.format("SWDC.wound")}`;
         new Dialog({
             title: game.i18n.format("SWDC.rerollSoakTitle"),
             content: game.i18n.format("SWDC.rerollSoakDmgPrompt", { name: actor.name, wounds: woundsRemainingText }),
@@ -107,19 +108,19 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
                     callback: async () => {
                         if (statusToApply === 'shaken') {
                             if (actor.system.status.isShaken) {
-                                await actor.update({ 'data.wounds.value': newWoundsValue });
+                                await actor.updateSource({ 'system.wounds.value': newWoundsValue });
                             }
                             await applyShaken(actor);
                             message = game.i18n.format("SWDC.isShaken", { name: actor.name });
                         }
                         if (statusToApply === 'wounded') {
-                            await actor.update({ 'data.wounds.value': newWoundsValue });
+                            await actor.updateSource({ 'system.wounds.value': newWoundsValue });
                             if (totalWounds > maxWounds) {
                                 message = await applyIncapacitated(actor);
                             } else {
                                 await applyShaken(actor);
                             }
-                            message = game.i18n.format("SWDC.woundsTaken", { name: actor.name, wounds: newWoundsValue });
+                            message = game.i18n.format("SWDC.woundsTaken", { name: actor.name, wounds: newWoundsValueText });
                         }
 
                         await ChatMessage.create({ content: message });
