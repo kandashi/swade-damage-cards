@@ -1,6 +1,6 @@
 {
-    "name": "swade-damage-cards",
-    "title": "SWADE Damage Cards",
+    "name": "swade-wound-calculator",
+    "title": "SWADE Wound Calculator",
     "description": "",
     "version": "This is auto replaced",
     "library": "false",
@@ -8,6 +8,14 @@
     "minimumCoreVersion": "10",
     "compatibleCoreVersion": "10",
     "authors": [
+        {
+            "name": "Kristian Serrano",
+            "email": "kristianserrano@gmail.com",
+            "url": "https://immaterialplane.com",
+            "discord": "Kristian Serrano#5077",
+            "twitter": "@KristianSerrano",
+            "reddit": "u/kristianserrano"
+        },
         {
             "name": "Kandashi",
             "url": "https://github.com/Kandashi",
