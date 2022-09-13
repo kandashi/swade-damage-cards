@@ -1,5 +1,5 @@
 Hooks.on('ready', function () {
-    game.socket.on('module.swade-damage-cards', soakPrompt);
+    game.socket.on('module.swade-wound-calculator', soakPrompt);
 });
 
 async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
@@ -54,7 +54,7 @@ async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
                     }
                 },
                 default: "soakBenny"
-            }, { classes: ["swade-app", "swade-damage-cards", "swade-damage-cards-soak"] }).render(true);
+            }, { classes: ["swade-app"] }).render(true);
         } else if (statusToApply === "shaken") {
             let message = game.i18n.format("SWWC.isShaken", { name: actor.name });
             await applyShaken(actor);
@@ -128,7 +128,7 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
                 },
             },
             default: "rerollBenny"
-        }, { classes: ["swade-app", "swade-damage-cards", "swade-damage-cards-soak"] }).render(true);
+        }, { classes: ["swade-app"] }).render(true);
     }
 }
 
@@ -197,7 +197,7 @@ class WoundCalculator {
                                         statusToApply: statusToApply
                                     });
                                 } else {
-                                    game.socket.emit('module.swade-damage-cards', {
+                                    game.socket.emit('module.swade-wound-calculator', {
                                         tokenActorUUID: target.actor.uuid,
                                         woundsInflicted: woundsInflicted,
                                         statusToApply: statusToApply
@@ -208,7 +208,7 @@ class WoundCalculator {
                     }
                 },
                 default: "calculate"
-            }, { classes: ["swade-app", "swade-damage-cards"] }).render(true);
+            }, { classes: ["swade-app"] }).render(true);
         } else {
             ui.notifications.warn("Please select one or more Targets.");
         }
