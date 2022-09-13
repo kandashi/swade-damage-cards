@@ -1,5 +1,5 @@
 Hooks.on('ready', function () {
-    game.socket.on('module.swade-wound-calculator', soakPrompt);
+    game.socket.on('module.swade-wounds-calculator', soakPrompt);
 });
 
 async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
@@ -149,7 +149,7 @@ async function applyIncapacitated(actor) {
     return game.i18n.format("SWWC.incapacitated", { name: actor.name });
 }
 
-class WoundCalculator {
+class WoundsCalculator {
     static render() {
         const targets = canvas.tokens.objects.children.filter((t) => t.targeted.size > 0 && !!Array.from(t.targeted).find((u) => u.id === game.userId));
         if (targets.length) {
@@ -197,7 +197,7 @@ class WoundCalculator {
                                         statusToApply: statusToApply
                                     });
                                 } else {
-                                    game.socket.emit('module.swade-wound-calculator', {
+                                    game.socket.emit('module.swade-wounds-calculator', {
                                         tokenActorUUID: target.actor.uuid,
                                         woundsInflicted: woundsInflicted,
                                         statusToApply: statusToApply
@@ -215,4 +215,4 @@ class WoundCalculator {
     }
 }
 
-globalThis.WoundCalculator = WoundCalculator;
+globalThis.WoundCalculator = WoundsCalculator;
