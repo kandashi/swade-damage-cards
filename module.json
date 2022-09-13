@@ -1,24 +1,54 @@
 {
-    "name": "swade-damage-cards",
-    "title": "SWADE Damage Cards",
-    "description": "",
-    "version": "This is auto replaced",
+    "id": "swade-wound-calculator",
+    "title": "SWADE Wound Calculator",
+    "description": "A macro that calculates Wounds from damage and initiates a procedure for Soaking and applying them.",
+    "version": "1.0.0",
     "library": "false",
     "manifestPlusVersion": "1.0.0",
-    "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "9",
     "authors": [
+        {
+            "name": "Kristian Serrano",
+            "email": "kristianserrano@gmail.com",
+            "url": "https://immaterialplane.com",
+            "discord": "Kristian Serrano#5077",
+            "twitter": "@KristianSerrano",
+            "reddit": "u/kristianserrano"
+        },
         {
             "name": "Kandashi",
             "url": "https://github.com/Kandashi",
             "discord": "Kandashi (He/Him)#6698"
         }
     ],
-    "esmodules": [
-        "/scripts/module.js"
+    "compatibility": {
+        "minimum": 10,
+        "verified": 10.285,
+        "maximum": 10
+    },
+    "requires": [
+        {
+            "id": "swade",
+            "type": "system",
+            "manifest": "https://gitlab.com/api/v4/projects/16269883/packages/generic/swade/latest/system.json",
+            "compatibility": {
+                "minimum": "2",
+                "verified": "2.0.2",
+                "maximum": "2"
+            }
+        }
     ],
-    "styles": [
-        "/styles/module.css"
+    "esmodules": [
+        "/scripts/swade-wounds.js"
+    ],
+    "styles": [],
+    "packs":[
+        {
+            "label": "SWADE Wounds Calculator Macro",
+            "name": "macros",
+            "path": "packs/macros.db",
+            "type": "Macro",
+            "private": false
+        }
     ],
     "languages": [
         {
