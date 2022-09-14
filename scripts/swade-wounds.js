@@ -215,4 +215,4 @@ class WoundsCalculator {
     }
 }
 
-globalThis.WoundCalculator = WoundsCalculator;
+globalThis.WoundsCalculator = WoundsCalculator;
