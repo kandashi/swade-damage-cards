@@ -1,3 +1,14 @@
+Hooks.on('init', function () {
+    game.settings.register('swade-wounds-calculator', "woundCap", {
+        name: "Enable Wound Cap",
+        hint: "Applies the Wound Cap Setting Rule.",
+        type: Boolean,
+        default: false,
+        scope: "world",
+        config: true
+    });
+})
+
 Hooks.on('ready', function () {
     game.socket.on('module.swade-wounds-calculator', soakPrompt);
 });
@@ -165,6 +176,7 @@ class WoundsCalculator {
                     calculate: {
                         label: game.i18n.format("SWWC.calculate"),
                         callback: async (html) => {
+                            const woundCap = game.settings.get('swade-wounds-calculator', 'woundCap');
                             const damage = Number(html.find("#damage")[0].value);
                             const ap = Number(html.find("#ap")[0].value);
                             for (const target of targets) {
@@ -177,6 +189,9 @@ class WoundsCalculator {
                                 const newT = value - apNeg;
                                 const excess = damage - newT;
                                 let woundsInflicted = Math.floor(excess / 4);
+                                if (woundCap && woundsInflicted > 4) {
+                                    woundsInflicted = 4;
+                                }
                                 let statusToApply = 'none';
                                 if (excess >= 0 && excess < 4) {
                                     statusToApply = "shaken";
