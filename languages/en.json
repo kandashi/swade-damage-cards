@@ -1,10 +1,10 @@
 {
     "SWWC.title": "SWADE Damage Calculation",
-    "SWWC.soakTitle": "Roll to Soak Wounds?",
+    "SWWC.soakTitle": "Roll to Soak Wounds for {name}?",
     "SWWC.soakDmgPrompt": "<p>{name} is about to take {wounds}. Do you want to attempt to Soak?</p>",
     "SWWC.soakBenny": "Spend a Benny to Soak",
     "SWWC.soakFree": "Soak for Free",
-    "SWWC.rerollSoakTitle": "Reroll to Soak Wounds?",
+    "SWWC.rerollSoakTitle": "Reroll to Soak Wounds for {name}?",
     "SWWC.rerollSoakDmgPrompt": "<p>{name} is about to take {wounds}. Do you want to reroll the Soak roll?</p>",
     "SWWC.rerollSoakBenny": "Spend a Benny to Reroll",
     "SWWC.rerollSoakFree": "Reroll for Free",

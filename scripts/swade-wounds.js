@@ -26,7 +26,7 @@ async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
         if (statusToApply === "wounded") {
             const woundsText = `${woundsInflicted} ${woundsInflicted > 1 ? game.i18n.format("SWWC.wounds") : game.i18n.format("SWWC.wound")}`;
             new Dialog({
-                title: game.i18n.format("SWWC.soakTitle"),
+                title: game.i18n.format("SWWC.soakTitle", { name: actor.name }),
                 content: game.i18n.format("SWWC.soakDmgPrompt", { name: actor.name, wounds: woundsText }),
                 buttons: {
                     soakBenny: {
@@ -94,7 +94,7 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
         const woundsRemainingText = `${woundsRemaining} ${woundsRemaining > 1 || woundsRemaining === 0 ? game.i18n.format("SWWC.wounds") : game.i18n.format("SWWC.wound")}`;
         const newWoundsValueText = `${newWoundsValue} ${newWoundsValue > 1 || newWoundsValue === 0 ? game.i18n.format("SWWC.wounds") : game.i18n.format("SWWC.wound")}`;
         new Dialog({
-            title: game.i18n.format("SWWC.rerollSoakTitle"),
+            title: game.i18n.format("SWWC.rerollSoakTitle", { name: actor.name }),
             content: game.i18n.format("SWWC.rerollSoakDmgPrompt", { name: actor.name, wounds: woundsRemainingText }),
             buttons: {
                 rerollBenny: {
@@ -162,8 +162,8 @@ async function applyIncapacitated(actor) {
 
 class WoundsCalculator {
     static render() {
-        const targets = canvas.tokens.objects.children.filter((t) => t.targeted.size > 0 && !!Array.from(t.targeted).find((u) => u.id === game.userId));
-        if (targets.length) {
+        const targets = game.user.targets;
+        if (targets.size) {
             new Dialog({
                 title: game.i18n.format("SWWC.title"),
                 content: `
