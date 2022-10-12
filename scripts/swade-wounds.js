@@ -95,7 +95,6 @@ async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
                                 await applyShaken(actor);
                             }
                             await ChatMessage.create({ content: message });
-                            // TODO: Add check for CR module installed and active
                             if (game.settings.get(MODULE_TITLE, "apply-gritty-damage")) {
                                 await promptGrittyDamage();
                             }
@@ -170,6 +169,9 @@ async function attemptSoak(actor, woundsInflicted, statusToApply, woundsText, be
                                 await applyShaken(actor);
                             }
                             message = game.i18n.format("SWWC.woundsTaken", { name: actor.name, wounds: newWoundsValueText });
+                            if (game.settings.get(MODULE_TITLE, "apply-gritty-damage")) {
+                                await promptGrittyDamage();
+                            }
                         }
 
                         await ChatMessage.create({ content: message });
