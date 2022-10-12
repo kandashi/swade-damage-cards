@@ -27,5 +27,5 @@
     "SWWC.UseGrittyDamageHint": "Targets who take Wounds are prompted to roll on the Injury Table. Enabling this option requires a refresh to select the Injury Table.",
     "SWWC.SelectInjuryTable": "Select an Injury Table",
     "SWWC.SelectInjuryTableHint": "Which table is the Injury Table?",
-    "SWWC.RollGrittyDamageDesc": "Gritty Damage rules are in play. Continue to roll on the Injury Table?"
+    "SWWC.RollGrittyDamageDesc": "Roll on the Injury Table?"
 }
