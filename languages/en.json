@@ -18,5 +18,14 @@
     "SWWC.wound": "Wound",
     "SWWC.wounds": "Wounds",
     "SWWC.is": "is",
-    "SWWC.takes": "takes"
+    "SWWC.takes": "takes",
+    "SWWC.WoundCap": "Wound Cap",
+    "SWWC.UseWoundCap": "Use Wound Cap Setting Rule",
+    "SWWC.UseWoundCapHint": "When enabled, targets never have to suffer or Soak more than four Wounds from a single attack.",
+    "SWWC.GrittyDamage": "Gritty Damage",
+    "SWWC.UseGrittyDamage": "Use Gritty Damage Setting Rule",
+    "SWWC.UseGrittyDamageHint": "Targets who take Wounds are prompted to roll on the Injury Table. Enabling this option requires a refresh to select the Injury Table",
+    "SWWC.SelectInjuryTable": "Select an Injury Table",
+    "SWWC.SelectInjuryTableHint": "Which table is the Injury Table?",
+    "SWWC.RollGrittyDamageDesc": "Gritty Damage rules are in play. Continue to roll on the Injury Table?"
 }
