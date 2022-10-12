@@ -1,16 +1,50 @@
+const MODULE_TITLE = "swade-wounds-calculator";
+
 Hooks.on('init', function () {
-    game.settings.register('swade-wounds-calculator', "woundCap", {
-        name: "Enable Wound Cap",
-        hint: "Applies the Wound Cap Setting Rule.",
+    game.settings.register(MODULE_TITLE, "woundCap", {
+        name: game.i18n.format("SWWC.UseWoundCap"),
+        hint: game.i18n.format("SWWC.UseWoundCapHint"),
         type: Boolean,
         default: false,
         scope: "world",
         config: true
     });
-})
+
+    game.settings.register(MODULE_TITLE, "apply-gritty-damage", {
+        name: game.i18n.format("SWWC.UseGrittyDamage"),
+        hint: game.i18n.format("SWWC.UseGrittyDamageHint"),
+        scope: "world",
+        requiresReload: true,
+        config: true,
+        default: false,
+        type: Boolean
+    });
+});
 
 Hooks.on('ready', function () {
-    game.socket.on('module.swade-wounds-calculator', soakPrompt);
+    game.socket.on(`module.${MODULE_TITLE}`, soakPrompt);
+
+    const choices = {};
+
+    if (game.settings.get(MODULE_TITLE, 'apply-gritty-damage')) {
+        for (const p of game.packs) {
+            if (p.metadata.type === 'RollTable' && p.metadata.packageType !== 'system') {
+                for (const i of p.index) {
+                    choices[i._id] = `${i.name} (${p.title})`;
+                }
+            }
+        }
+
+        game.settings.register(MODULE_TITLE, "injury-table", {
+            name: game.i18n.format("SWWC.SelectInjuryTable"),
+            hint: game.i18n.format("SWWC.SelectInjuryTableHint"),
+            scope: "world",
+            config: true,
+            type: String,
+            choices: choices,
+            default: ""
+        });
+    }
 });
 
 async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
@@ -61,6 +95,10 @@ async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
                                 await applyShaken(actor);
                             }
                             await ChatMessage.create({ content: message });
+                            // TODO: Add check for CR module installed and active
+                            if (game.settings.get(MODULE_TITLE, "apply-gritty-damage")) {
+                                await promptGrittyDamage();
+                            }
                         }
                     }
                 },
@@ -160,6 +198,35 @@ async function applyIncapacitated(actor) {
     return game.i18n.format("SWWC.incapacitated", { name: actor.name });
 }
 
+async function promptGrittyDamage() {
+    const injuryTableId = game.settings.get(MODULE_TITLE, "injury-table");
+    let injuryTable;
+    for (const p of game.packs) {
+        for (const i of p.index) {
+            if (i._id === injuryTableId) {
+                const pack = await game.packs.get(p.collection);
+                injuryTable = await pack.getDocument(i._id);
+            }
+        }
+    }
+    new Dialog({
+        title: game.i18n.format("SWWC.GrittyDamage"),
+        content: `<p>${game.i18n.format("SWWC.RollGrittyDamageDesc")}</p>`,
+        buttons: {
+            roll: {
+                label: "Roll",
+                callback: async () => {
+                    await injuryTable.draw();
+                    // TODO: Add automatic roll on injury subtables when they are added to the modules.
+                }
+            },
+            cancel: {
+                label: "Cancel"
+            }
+        }
+    }).render(true);
+}
+
 class WoundsCalculator {
     static render() {
         const targets = game.user.targets;
@@ -176,7 +243,7 @@ class WoundsCalculator {
                     calculate: {
                         label: game.i18n.format("SWWC.calculate"),
                         callback: async (html) => {
-                            const woundCap = game.settings.get('swade-wounds-calculator', 'woundCap');
+                            const woundCap = game.settings.get(MODULE_TITLE, 'woundCap');
                             const damage = Number(html.find("#damage")[0].value);
                             const ap = Number(html.find("#ap")[0].value);
                             for (const target of targets) {
@@ -212,7 +279,7 @@ class WoundsCalculator {
                                         statusToApply: statusToApply
                                     });
                                 } else {
-                                    game.socket.emit('module.swade-wounds-calculator', {
+                                    game.socket.emit(`module.${MODULE_TITLE}`, {
                                         tokenActorUUID: target.actor.uuid,
                                         woundsInflicted: woundsInflicted,
                                         statusToApply: statusToApply
