@@ -50,15 +50,18 @@ Hooks.on('ready', function () {
 async function soakPrompt({ tokenActorUUID, woundsInflicted, statusToApply }) {
     let actor;
     const documentObject = await fromUuid(tokenActorUUID);
+    const woundsText = `${woundsInflicted} ${woundsInflicted > 1 ? game.i18n.format("SWWC.wounds") : game.i18n.format("SWWC.wound")}`;
     if (documentObject.constructor.name === 'TokenDocument') {
         actor = documentObject.actor;
     } else if (documentObject.constructor.name === 'SwadeActor') {
         actor = documentObject;
     }
+    await ChatMessage.create({
+        content: game.i18n.format("SWWC.woundsAboutToBeTaken", { name: actor.name, wounds: woundsText })
+    });
     const isOwner = actor.ownership[game.userId] === 3;
     if (isOwner && statusToApply !== "none") {
         if (statusToApply === "wounded") {
-            const woundsText = `${woundsInflicted} ${woundsInflicted > 1 ? game.i18n.format("SWWC.wounds") : game.i18n.format("SWWC.wound")}`;
             new Dialog({
                 title: game.i18n.format("SWWC.soakTitle", { name: actor.name }),
                 content: game.i18n.format("SWWC.soakDmgPrompt", { name: actor.name, wounds: woundsText }),
